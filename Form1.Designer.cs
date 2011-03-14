@@ -32,6 +32,7 @@
             this.btnBrowse = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.btnProcess = new System.Windows.Forms.Button();
+            this.ofd1 = new System.Windows.Forms.OpenFileDialog();
             this.SuspendLayout();
             // 
             // txtPath
@@ -49,6 +50,7 @@
             this.btnBrowse.TabIndex = 1;
             this.btnBrowse.Text = "Browse...";
             this.btnBrowse.UseVisualStyleBackColor = true;
+            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // label1
             // 
@@ -91,6 +93,7 @@
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnProcess;
+        private System.Windows.Forms.OpenFileDialog ofd1;
     }
 }
 
