@@ -33,6 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnProcess = new System.Windows.Forms.Button();
             this.ofd1 = new System.Windows.Forms.OpenFileDialog();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // txtPath
@@ -63,7 +64,7 @@
             // 
             // btnProcess
             // 
-            this.btnProcess.Location = new System.Drawing.Point(15, 114);
+            this.btnProcess.Location = new System.Drawing.Point(12, 86);
             this.btnProcess.Name = "btnProcess";
             this.btnProcess.Size = new System.Drawing.Size(75, 23);
             this.btnProcess.TabIndex = 3;
@@ -71,11 +72,21 @@
             this.btnProcess.UseVisualStyleBackColor = true;
             this.btnProcess.Click += new System.EventHandler(this.btnProcess_Click);
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(12, 57);
+            this.progressBar1.Maximum = 1000;
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(379, 23);
+            this.progressBar1.Step = 1;
+            this.progressBar1.TabIndex = 4;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(651, 404);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.btnProcess);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnBrowse);
@@ -94,6 +105,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnProcess;
         private System.Windows.Forms.OpenFileDialog ofd1;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

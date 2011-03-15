@@ -31,15 +31,23 @@ namespace MovieBarCode
 
         private void GenerateMovieBarCode(string videoPath)
         {
+            progressBar1.Value = progressBar1.Minimum;
             VideoHelper v = new VideoHelper(videoPath);
             //for (int i = 0; i < 100; i++)
             //{
             //    v.SaveFrameFromVideo(((double)i) / 100.0, string.Format(@"C:\x{0}.bmp", i));
             //}
-            //for (int i = 0; i < 100; i++)
-            //{
-            //     v.GetFrameFromVideo(((double)i) / 100.0).Save(string.Format(@"C:\x{0}.jpg", i),System.Drawing.Imaging.ImageFormat.Jpeg);
-            //}
+            Bitmap b = new Bitmap(1000,500);
+            System.Drawing.Graphics g = Graphics.FromImage(b);
+            for (int i = 0; i <= 1000; i++)
+            {
+                //v.GetFrameFromVideo(((double)i) / 100.0).Save(string.Format(@"C:\x{0}.jpg", i), System.Drawing.Imaging.ImageFormat.Jpeg);
+                Bitmap tempB = v.GetFrameFromVideo(((double)i) / 1000.0);
+                g.DrawImage(tempB, i, 0, 1, 500);
+                progressBar1.PerformStep();
+                Application.DoEvents();
+            }
+            b.Save(string.Format(@"C:\{0}.png",System.IO.Path.GetFileNameWithoutExtension(txtPath.Text).Trim(".".ToCharArray())));
             v.Dispose();
         }
 
