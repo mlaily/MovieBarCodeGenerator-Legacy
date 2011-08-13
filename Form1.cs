@@ -40,23 +40,6 @@ namespace MovieBarCode
 
         private void btnProcess_Click(object sender, EventArgs e)
         {
-            if (System.IO.File.Exists(txtPathOut.Text))
-            {
-                if (MessageBox.Show(string.Format(@"The file '{0}' already exists. do you want to overwrite it?", txtPathOut.Text), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
-                {
-                    return;
-                }
-            }
-            try
-            {
-                var fs = new System.IO.FileStream(txtPathOut.Text, System.IO.FileMode.Create);
-                fs.Dispose();
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Invalid output path!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
             if (System.IO.File.Exists(txtPathIn.Text))
             {
                 int width;
@@ -66,6 +49,10 @@ namespace MovieBarCode
                 try
                 {
                     width = int.Parse(txtWidth.Text);
+                    if (width <= 0)
+                    {
+                        throw new ArgumentException();
+                    }
                 }
                 catch (Exception)
                 {
@@ -75,6 +62,10 @@ namespace MovieBarCode
                 try
                 {
                     height = int.Parse(txtHeight.Text);
+                    if (height <= 0)
+                    {
+                        throw new ArgumentException();
+                    }
                 }
                 catch (Exception)
                 {
@@ -84,6 +75,10 @@ namespace MovieBarCode
                 try
                 {
                     iterations = int.Parse(txtIterations.Text);
+                    if (iterations <= 0)
+                    {
+                        throw new ArgumentException();
+                    }
                 }
                 catch (Exception)
                 {
@@ -93,10 +88,32 @@ namespace MovieBarCode
                 try
                 {
                     barWidth = int.Parse(txtBarWidth.Text);
+                    if (barWidth <= 0)
+                    {
+                        throw new ArgumentException();
+                    }
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Bar-width value not valid!");
+                    return;
+                }
+
+                if (System.IO.File.Exists(txtPathOut.Text))
+                {
+                    if (MessageBox.Show(string.Format(@"The file '{0}' already exists. are you sure you want to overwrite it?", txtPathOut.Text), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
+                    {
+                        return;
+                    }
+                }
+                try
+                {
+                    var fs = new System.IO.FileStream(txtPathOut.Text, System.IO.FileMode.Create);
+                    fs.Dispose();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Invalid output path!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
