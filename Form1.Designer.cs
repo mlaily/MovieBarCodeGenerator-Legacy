@@ -256,6 +256,8 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnBrowseIn);
             this.Controls.Add(this.txtPathIn);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(416, 249);
             this.Name = "Form1";
             this.Text = "Movie BarCode Generator - ";
