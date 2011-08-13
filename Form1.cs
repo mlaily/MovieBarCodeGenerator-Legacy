@@ -142,6 +142,13 @@ namespace MovieBarCode
             {
                 Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)iterations);
                 g.DrawImage(tempB, i * barWidth, 0, barWidth, height);
+                if (i % 10 == 0)
+                {
+                    //once every 10 iteration should not be too much
+                    //but is enough to keep the memory footprint as low as possible
+                    //(almost only cosmetic change)
+                    GC.Collect();
+                }
                 progressBar1.PerformStep();
                 Application.DoEvents();
             }
