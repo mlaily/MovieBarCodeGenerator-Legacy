@@ -68,16 +68,14 @@ namespace MovieBarCode
         }
 
         /// <summary>
-        /// Extracts a frame from videoFile at percentagePosition and returns it.
-        /// /!\ Resulting Image must RotateFlipped(RotateFlipType.Rotate180FlipX)
+        /// Extracts a frame from videoFile at percentagePosition and returns it
         /// </summary>
         /// <param name="percentagePosition">Valid range is 0.0 .. 1.0</param>
         /// <param name="streamLength">will contain the length in seconds of the video stream</param>
-        /// <param name="handleToFree">handle to free after the bitmap is used and disposed</param>
         /// <returns>Bitmap of the extracted frame</returns>
         /// <exception cref="InvalidVideoFileException">thrown if the extraction fails</exception>
         /// <exception cref="ArgumentOutOfRangeException">thrown if an invalid percentagePosition is passed</exception>
-        public Bitmap GetFrameFromVideo(double percentagePosition, out GCHandle handleToFree)
+        public Bitmap GetFrameFromVideo(double percentagePosition)
         {
             if (percentagePosition > 1 || percentagePosition < 0)
             {
@@ -96,10 +94,8 @@ namespace MovieBarCode
                         //get size for buffer
                         int bufferSize = (((s.Width * s.Height) * 24) / 8) + bmpinfoheaderSize;	//equals to mediaDet.GetBitmapBits(0d, ref bufferSize, ref *buffer, target.Width, target.Height);	
 
-                        byte[] b = new byte[bufferSize];
-                        handleToFree = GCHandle.Alloc(b, GCHandleType.Pinned);
-                        IntPtr frameBuffer = handleToFree.AddrOfPinnedObject();
-                        
+                        //allocates enough memory to store the frame
+                        IntPtr frameBuffer = System.Runtime.InteropServices.Marshal.AllocHGlobal(bufferSize);
                         byte* frameBuffer2 = (byte*)frameBuffer.ToPointer();
 
                         //gets bitmap, save in frameBuffer2
@@ -108,6 +104,9 @@ namespace MovieBarCode
                         //now in buffer2 we have a BITMAPINFOHEADER structure followed by the DIB bits
 
                         Bitmap bmp = new Bitmap(this.TargetSize.Width, this.TargetSize.Height, this.TargetSize.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, new IntPtr(frameBuffer2 + bmpinfoheaderSize));
+
+                        bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
+                        System.Runtime.InteropServices.Marshal.FreeHGlobal(frameBuffer);
 
                         return bmp;
                     }

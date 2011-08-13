@@ -89,19 +89,12 @@ namespace MovieBarCode
             System.Drawing.Graphics g = Graphics.FromImage(b);
             for (int i = 0; i < width; i++)
             {
-                System.Runtime.InteropServices.GCHandle handleToFree;
-                using (Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)width, out handleToFree))
-                {
-                    g.DrawImage(tempB, i, 0, 1, height);
-                    //tempB.Save(string.Format(@"C:\bite{0:0000}.jpg", i), System.Drawing.Imaging.ImageFormat.Jpeg);
-                    handleToFree.Free();
-                }
+                //v.GetFrameFromVideo(((double)i) / 100.0).Save(string.Format(@"C:\x{0}.jpg", i), System.Drawing.Imaging.ImageFormat.Jpeg);
+                Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)width);
+                g.DrawImage(tempB, i, 0, 1, height);
                 progressBar1.PerformStep();
                 Application.DoEvents();
             }
-            //since the images used are upward down, we flip the result vertically
-            //(we don't care about the rotation, as the images are 1 pixel width)
-            b.RotateFlip(RotateFlipType.RotateNoneFlipY);
             System.Drawing.Imaging.ImageFormat format;
             switch (System.IO.Path.GetExtension(outputPath).Trim(".".ToCharArray()).ToLowerInvariant())
             {
