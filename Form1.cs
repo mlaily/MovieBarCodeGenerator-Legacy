@@ -42,7 +42,7 @@ namespace MovieBarCode
         {
             if (System.IO.File.Exists(txtPathOut.Text))
             {
-                if (MessageBox.Show(string.Format(@"The file '{0}' already exists. do you want to overwrite it?",txtPathOut.Text),"Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
+                if (MessageBox.Show(string.Format(@"The file '{0}' already exists. do you want to overwrite it?", txtPathOut.Text), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
                 {
                     return;
                 }
@@ -61,17 +61,48 @@ namespace MovieBarCode
             {
                 int width;
                 int height;
-                if (int.TryParse(txtWidth.Text, out width) && int.TryParse(txtHeight.Text, out height))
+                int iterations;
+                int barWidth;
+                try
                 {
-                    this.Enabled = false;
-                    GenerateMovieBarCode(txtPathIn.Text, width, height,txtPathOut.Text);
-                    this.Enabled = true;
+                    width = int.Parse(txtWidth.Text);
                 }
-                else
+                catch (Exception)
                 {
-                    MessageBox.Show("The input values must be valid integers!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Width not valid!");
                     return;
                 }
+                try
+                {
+                    height = int.Parse(txtHeight.Text);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Height not valid!");
+                    return;
+                }
+                try
+                {
+                    iterations = int.Parse(txtIterations.Text);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Iterations value not valid!");
+                    return;
+                }
+                try
+                {
+                    barWidth = int.Parse(txtBarWidth.Text);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Bar-width value not valid!");
+                    return;
+                }
+
+                this.Enabled = false;
+                GenerateMovieBarCode(txtPathIn.Text, width, height, txtPathOut.Text, iterations, barWidth);
+                this.Enabled = true;
             }
             else
             {
@@ -80,21 +111,28 @@ namespace MovieBarCode
             }
         }
 
-        private void GenerateMovieBarCode(string videoPath, int width, int height, string outputPath)
+        private void GenerateMovieBarCode(string videoPath, int width, int height, string outputPath, int iterations, int barWidth)
         {
             progressBar1.Value = progressBar1.Minimum;
-            progressBar1.Maximum = width;
+            progressBar1.Maximum = iterations;
             VideoHelper v = new VideoHelper(videoPath);
             Bitmap b = new Bitmap(width, height);
             System.Drawing.Graphics g = Graphics.FromImage(b);
-            for (int i = 0; i < width; i++)
+#if DEBUG
+            DateTime start = DateTime.Now;
+#endif
+            for (int i = 0; i < iterations; i++)
             {
-                //v.GetFrameFromVideo(((double)i) / 100.0).Save(string.Format(@"C:\x{0}.jpg", i), System.Drawing.Imaging.ImageFormat.Jpeg);
-                Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)width);
-                g.DrawImage(tempB, i, 0, 1, height);
+                Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)iterations);
+                g.DrawImage(tempB, i * barWidth, 0, barWidth, height);
                 progressBar1.PerformStep();
                 Application.DoEvents();
             }
+#if DEBUG
+            DateTime end = DateTime.Now;
+            var total = end - start;
+            Console.WriteLine(total);
+#endif
             System.Drawing.Imaging.ImageFormat format;
             switch (System.IO.Path.GetExtension(outputPath).Trim(".".ToCharArray()).ToLowerInvariant())
             {
@@ -121,13 +159,80 @@ namespace MovieBarCode
 
         private void link1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(ThreadedStart));
-            t.Start();
+            new System.Threading.Thread(
+                new System.Threading.ThreadStart(
+                    () => System.Diagnostics.Process.Start(@"http://arcanesanctum.net"))).Start();
         }
 
-        private void ThreadedStart()
+        private void txtIterations_TextChanged(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(@"http://arcanesanctum.net");
+            if (!chkAutoCorrect.Checked)
+            {
+                return;
+            }
+            //barwidth = width/iterations
+            int width;
+            int iterations;
+            try
+            {
+                width = int.Parse(txtWidth.Text);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            try
+            {
+                iterations = int.Parse(txtIterations.Text);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            try
+            {
+                int barWidth = width / iterations;
+                txtBarWidth.Text = barWidth.ToString();
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void txtBarWidth_TextChanged(object sender, EventArgs e)
+        {
+            if (!chkAutoCorrect.Checked)
+            {
+                return;
+            }
+            //iterations = width/barwidth
+            int width;
+            int barWidth;
+            try
+            {
+                width = int.Parse(txtWidth.Text);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+            try
+            {
+                barWidth = int.Parse(txtBarWidth.Text);
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            try
+            {
+                int iterations = width / barWidth;
+                txtIterations.Text = iterations.ToString();
+            }
+            catch (Exception)
+            {
+            }
         }
 
     }

@@ -43,6 +43,11 @@
             this.txtPathOut = new System.Windows.Forms.TextBox();
             this.sfd1 = new System.Windows.Forms.SaveFileDialog();
             this.link1 = new System.Windows.Forms.LinkLabel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtIterations = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtBarWidth = new System.Windows.Forms.TextBox();
+            this.chkAutoCorrect = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtPathIn
@@ -51,13 +56,13 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPathIn.Location = new System.Drawing.Point(12, 31);
             this.txtPathIn.Name = "txtPathIn";
-            this.txtPathIn.Size = new System.Drawing.Size(295, 20);
+            this.txtPathIn.Size = new System.Drawing.Size(336, 20);
             this.txtPathIn.TabIndex = 0;
             // 
             // btnBrowseIn
             // 
             this.btnBrowseIn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseIn.Location = new System.Drawing.Point(313, 29);
+            this.btnBrowseIn.Location = new System.Drawing.Point(354, 29);
             this.btnBrowseIn.Name = "btnBrowseIn";
             this.btnBrowseIn.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseIn.TabIndex = 1;
@@ -77,7 +82,7 @@
             // btnProcess
             // 
             this.btnProcess.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnProcess.Location = new System.Drawing.Point(313, 130);
+            this.btnProcess.Location = new System.Drawing.Point(354, 147);
             this.btnProcess.Name = "btnProcess";
             this.btnProcess.Size = new System.Drawing.Size(75, 23);
             this.btnProcess.TabIndex = 3;
@@ -93,10 +98,10 @@
             // 
             this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(12, 159);
+            this.progressBar1.Location = new System.Drawing.Point(12, 176);
             this.progressBar1.Maximum = 1000;
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(376, 23);
+            this.progressBar1.Size = new System.Drawing.Size(417, 23);
             this.progressBar1.Step = 1;
             this.progressBar1.TabIndex = 4;
             // 
@@ -146,7 +151,7 @@
             // btnBrowseOut
             // 
             this.btnBrowseOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseOut.Location = new System.Drawing.Point(313, 71);
+            this.btnBrowseOut.Location = new System.Drawing.Point(354, 71);
             this.btnBrowseOut.Name = "btnBrowseOut";
             this.btnBrowseOut.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseOut.TabIndex = 11;
@@ -160,7 +165,7 @@
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.txtPathOut.Location = new System.Drawing.Point(12, 73);
             this.txtPathOut.Name = "txtPathOut";
-            this.txtPathOut.Size = new System.Drawing.Size(295, 20);
+            this.txtPathOut.Size = new System.Drawing.Size(336, 20);
             this.txtPathOut.TabIndex = 10;
             // 
             // sfd1
@@ -172,7 +177,7 @@
             this.link1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.link1.AutoSize = true;
             this.link1.LinkColor = System.Drawing.Color.SteelBlue;
-            this.link1.Location = new System.Drawing.Point(12, 189);
+            this.link1.Location = new System.Drawing.Point(12, 206);
             this.link1.Name = "link1";
             this.link1.Size = new System.Drawing.Size(101, 13);
             this.link1.TabIndex = 13;
@@ -180,11 +185,64 @@
             this.link1.Text = "ArcaneSanctum.net";
             this.link1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.link1_LinkClicked);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(170, 106);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "Iterations:";
+            // 
+            // txtIterations
+            // 
+            this.txtIterations.Location = new System.Drawing.Point(173, 122);
+            this.txtIterations.Name = "txtIterations";
+            this.txtIterations.Size = new System.Drawing.Size(55, 20);
+            this.txtIterations.TabIndex = 15;
+            this.txtIterations.Text = "1000";
+            this.txtIterations.TextChanged += new System.EventHandler(this.txtIterations_TextChanged);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(239, 106);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(54, 13);
+            this.label6.TabIndex = 16;
+            this.label6.Text = "Bar width:";
+            // 
+            // txtBarWidth
+            // 
+            this.txtBarWidth.Location = new System.Drawing.Point(242, 122);
+            this.txtBarWidth.Name = "txtBarWidth";
+            this.txtBarWidth.Size = new System.Drawing.Size(55, 20);
+            this.txtBarWidth.TabIndex = 17;
+            this.txtBarWidth.Text = "1";
+            this.txtBarWidth.TextChanged += new System.EventHandler(this.txtBarWidth_TextChanged);
+            // 
+            // chkAutoCorrect
+            // 
+            this.chkAutoCorrect.AutoSize = true;
+            this.chkAutoCorrect.Checked = true;
+            this.chkAutoCorrect.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoCorrect.Location = new System.Drawing.Point(173, 153);
+            this.chkAutoCorrect.Name = "chkAutoCorrect";
+            this.chkAutoCorrect.Size = new System.Drawing.Size(118, 17);
+            this.chkAutoCorrect.TabIndex = 18;
+            this.chkAutoCorrect.Text = "Auto correct values";
+            this.chkAutoCorrect.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 211);
+            this.ClientSize = new System.Drawing.Size(441, 228);
+            this.Controls.Add(this.chkAutoCorrect);
+            this.Controls.Add(this.txtBarWidth);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.txtIterations);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.link1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.btnBrowseOut);
@@ -223,6 +281,11 @@
         private System.Windows.Forms.TextBox txtPathOut;
         private System.Windows.Forms.SaveFileDialog sfd1;
         private System.Windows.Forms.LinkLabel link1;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtIterations;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtBarWidth;
+        private System.Windows.Forms.CheckBox chkAutoCorrect;
     }
 }
 
