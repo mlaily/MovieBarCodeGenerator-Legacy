@@ -17,7 +17,7 @@ namespace MovieBarCode
         /// length in seconds of the current stream
         /// </summary>
         public double StreamLength
-        { 
+        {
             get
             {
                 if (this._StreamLength == -42)
@@ -25,7 +25,7 @@ namespace MovieBarCode
                     this._StreamLength = this.mediaDetInstance.StreamLength;
                 }
                 return this._StreamLength;
-            } 
+            }
         }
         private double _StreamLength = -42;
 
@@ -60,9 +60,9 @@ namespace MovieBarCode
 
         public VideoHelper(string filePath)
         {
-            if (!Misc.openVideoStream(filePath,out mediaDetInstance,out mediaTypeInstance))
+            if (!Misc.openVideoStream(filePath, out mediaDetInstance, out mediaTypeInstance))
             {
-                throw new Exception(string.Format("Unable to load a valid video stream from file {0}.",filePath));
+                throw new Exception(string.Format("Unable to load a valid video stream from file {0}.", filePath));
             }
             this._TargetSize = this.GetVideoSize();
         }
@@ -79,37 +79,37 @@ namespace MovieBarCode
         {
             if (percentagePosition > 1 || percentagePosition < 0)
             {
-                throw new ArgumentOutOfRangeException("percentagePosition", percentagePosition, "Valid range is 0.0 .. 1.0"); 
+                throw new ArgumentOutOfRangeException("percentagePosition", percentagePosition, "Valid range is 0.0 .. 1.0");
             }
             //if (target.Width % 4 != 0 || target.Height % 4 != 0)
             //    throw new ArgumentException("Target size must be a multiple of 4", "target");
 
             try
             {
-                    unsafe
-                    {
-                        Size s = this.GetVideoSize();
-                        int bmpinfoheaderSize = 40; //equals to sizeof(CommonClasses.BITMAPINFOHEADER);
+                unsafe
+                {
+                    Size s = this.GetVideoSize();
+                    int bmpinfoheaderSize = 40; //equals to sizeof(CommonClasses.BITMAPINFOHEADER);
 
-                        //get size for buffer
-                        int bufferSize = (((s.Width * s.Height) * 24) / 8) + bmpinfoheaderSize;	//equals to mediaDet.GetBitmapBits(0d, ref bufferSize, ref *buffer, target.Width, target.Height);	
+                    //get size for buffer
+                    int bufferSize = (((s.Width * s.Height) * 24) / 8) + bmpinfoheaderSize;	//equals to mediaDet.GetBitmapBits(0d, ref bufferSize, ref *buffer, target.Width, target.Height);	
 
-                        //allocates enough memory to store the frame
-                        IntPtr frameBuffer = System.Runtime.InteropServices.Marshal.AllocHGlobal(bufferSize);
-                        byte* frameBuffer2 = (byte*)frameBuffer.ToPointer();
+                    //allocates enough memory to store the frame
+                    IntPtr frameBuffer = System.Runtime.InteropServices.Marshal.AllocHGlobal(bufferSize);
+                    byte* frameBuffer2 = (byte*)frameBuffer.ToPointer();
 
-                        //gets bitmap, save in frameBuffer2
-                        this.mediaDetInstance.GetBitmapBits(this.StreamLength * percentagePosition, ref bufferSize, ref *frameBuffer2, this.TargetSize.Width, this.TargetSize.Height);
+                    //gets bitmap, save in frameBuffer2
+                    this.mediaDetInstance.GetBitmapBits(this.StreamLength * percentagePosition, ref bufferSize, ref *frameBuffer2, this.TargetSize.Width, this.TargetSize.Height);
 
-                        //now in buffer2 we have a BITMAPINFOHEADER structure followed by the DIB bits
+                    //now in buffer2 we have a BITMAPINFOHEADER structure followed by the DIB bits
 
-                        Bitmap bmp = new Bitmap(this.TargetSize.Width, this.TargetSize.Height, this.TargetSize.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, new IntPtr(frameBuffer2 + bmpinfoheaderSize));
+                    Bitmap bmp = new Bitmap(this.TargetSize.Width, this.TargetSize.Height, this.TargetSize.Width * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, new IntPtr(frameBuffer2 + bmpinfoheaderSize));
 
-                        bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-                        System.Runtime.InteropServices.Marshal.FreeHGlobal(frameBuffer);
+                    bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
+                    System.Runtime.InteropServices.Marshal.FreeHGlobal(frameBuffer);
 
-                        return bmp;
-                    }
+                    return bmp;
+                }
             }
             catch (COMException ex)
             {
@@ -167,4 +167,4 @@ namespace MovieBarCode
             }
         }
     }
-}
+}☻
