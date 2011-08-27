@@ -134,7 +134,7 @@ namespace MovieBarCode
             public int start;
             public int stop;
             public int totalIterations;
-            public VideoHelper v;
+            public string vPath;
             public int barWidth;
             public int width;
             public int height;
@@ -145,10 +145,11 @@ namespace MovieBarCode
             ThreadParameters args = (ThreadParameters)objectArgs;
             Bitmap slice = new Bitmap(args.width, args.height);
             System.Drawing.Graphics g = Graphics.FromImage(slice);
+            VideoHelper v = new VideoHelper(args.vPath);
             for (int i = args.start; i < args.stop; i++)
             {
-                Bitmap frame = args.v.GetFrameFromVideo(((double)i) / (double)args.totalIterations);
-                g.DrawImage(frame, i * args.barWidth, 0, args.barWidth, args.height);
+                Bitmap frame = v.GetFrameFromVideo(((double)i) / (double)args.totalIterations);
+                g.DrawImage(frame, (i-args.start) * args.barWidth, 0, args.barWidth, args.height);
                 if (i % 10 == 0)
                 {
                     //once every 10 iteration should not be too much
@@ -160,7 +161,7 @@ namespace MovieBarCode
                 //progressBar1.PerformStep();
                 //Application.DoEvents();
             }
-            args.v.Dispose();
+            v.Dispose();
             ThreadedSlices.Add(args.threadNumber, slice);
         }
         /// <summary>
@@ -190,12 +191,12 @@ namespace MovieBarCode
             {
                 ThreadParameters args = new ThreadParameters();
                 args.threadNumber = i;
-                args.start = i * (iterations/Environment.ProcessorCount);
-                args.stop = (i+1) * (iterations / Environment.ProcessorCount);
+                args.start = i * (iterations / Environment.ProcessorCount);
+                args.stop = (i + 1) * (iterations / Environment.ProcessorCount);
                 args.totalIterations = iterations;
-                args.v = new VideoHelper(videoPath);
+                args.vPath = videoPath;
                 args.barWidth = barWidth;
-                args.width = width/Environment.ProcessorCount;//must handle modulo if not a multiple of processorCount
+                args.width = width / Environment.ProcessorCount;//must handle modulo if not a multiple of processorCount
                 args.height = height;
                 System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(GenerationCore));
                 t.Name = string.Format("Core {0}",i+1);
@@ -209,6 +210,7 @@ namespace MovieBarCode
             foreach (var slice in ThreadedSlices)
             {
                 g.DrawImage(slice.Value, new Point(slice.Key * (iterations / Environment.ProcessorCount), 0));
+                slice.Value.Save(string.Format(@"C:\{0:000}.jpg",slice.Key));
             }
 #if DEBUG
             DateTime end = DateTime.Now;
