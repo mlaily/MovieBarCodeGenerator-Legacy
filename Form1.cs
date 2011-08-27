@@ -128,20 +128,27 @@ namespace MovieBarCode
             }
         }
 
-        private void GenerateMovieBarCode(string videoPath, int width, int height, string outputPath, int iterations, int barWidth)
+        public struct ThreadParameters
         {
-            progressBar1.Value = progressBar1.Minimum;
-            progressBar1.Maximum = iterations;
-            VideoHelper v = new VideoHelper(videoPath);
-            Bitmap b = new Bitmap(width, height);
-            System.Drawing.Graphics g = Graphics.FromImage(b);
-#if DEBUG
-            DateTime start = DateTime.Now;
-#endif
-            for (int i = 0; i < iterations; i++)
+            public int threadNumber;
+            public int start;
+            public int stop;
+            public int totalIterations;
+            public VideoHelper v;
+            public int barWidth;
+            public int width;
+            public int height;
+        }
+
+        private void GenerationCore(object objectArgs)
+        {
+            ThreadParameters args = (ThreadParameters)objectArgs;
+            Bitmap slice = new Bitmap(args.width, args.height);
+            System.Drawing.Graphics g = Graphics.FromImage(slice);
+            for (int i = args.start; i < args.stop; i++)
             {
-                Bitmap tempB = v.GetFrameFromVideo(((double)i) / (double)iterations);
-                g.DrawImage(tempB, i * barWidth, 0, barWidth, height);
+                Bitmap frame = args.v.GetFrameFromVideo(((double)i) / (double)args.totalIterations);
+                g.DrawImage(frame, i * args.barWidth, 0, args.barWidth, args.height);
                 if (i % 10 == 0)
                 {
                     //once every 10 iteration should not be too much
@@ -149,8 +156,59 @@ namespace MovieBarCode
                     //(almost only cosmetic change)
                     GC.Collect();
                 }
-                progressBar1.PerformStep();
-                Application.DoEvents();
+                progression++;
+                //progressBar1.PerformStep();
+                //Application.DoEvents();
+            }
+            args.v.Dispose();
+            ThreadedSlices.Add(args.threadNumber, slice);
+        }
+        /// <summary>
+        /// stock temporary bitmap computed in working threads (must be accessed in a thread safe way),
+        /// each bitmap is associated with its thread number (in the right order)
+        /// </summary>
+        private Dictionary<int, Bitmap> ThreadedSlices = null;
+        /// <summary>
+        /// progression, reported by working threads, in frames
+        /// (total = iterations)
+        /// </summary>
+        private int progression = 0;
+        private void GenerateMovieBarCode(string videoPath, int width, int height, string outputPath, int iterations, int barWidth)
+        {
+            //multithread : on calcul séparement x bitmap qu'on réassemble à la fin
+            progressBar1.Value = progressBar1.Minimum;
+            progressBar1.Maximum = iterations;
+            //VideoHelper v = new VideoHelper(videoPath);
+            Bitmap finalBitmap = new Bitmap(width, height);
+            System.Drawing.Graphics g = Graphics.FromImage(finalBitmap);
+            ThreadedSlices = new Dictionary<int, Bitmap>();
+#if DEBUG
+            DateTime start = DateTime.Now;
+#endif
+            List<System.Threading.Thread> threads = new List<System.Threading.Thread>();
+            for (int i = 0; i < Environment.ProcessorCount; i++)
+            {
+                ThreadParameters args = new ThreadParameters();
+                args.threadNumber = i;
+                args.start = i * (iterations/Environment.ProcessorCount);
+                args.stop = (i+1) * (iterations / Environment.ProcessorCount);
+                args.totalIterations = iterations;
+                args.v = new VideoHelper(videoPath);
+                args.barWidth = barWidth;
+                args.width = width/Environment.ProcessorCount;//must handle modulo if not a multiple of processorCount
+                args.height = height;
+                System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(GenerationCore));
+                t.Name = string.Format("Core {0}",i+1);
+                threads.Add(t);
+                t.Start(args);
+            }
+            foreach (var item in threads)
+            {
+                item.Join();
+            }
+            foreach (var slice in ThreadedSlices)
+            {
+                g.DrawImage(slice.Value, new Point(slice.Key * (iterations / Environment.ProcessorCount), 0));
             }
 #if DEBUG
             DateTime end = DateTime.Now;
@@ -177,8 +235,8 @@ namespace MovieBarCode
                     format = System.Drawing.Imaging.ImageFormat.Png;
                     break;
             }
-            b.Save(outputPath, format);
-            v.Dispose();
+            finalBitmap.Save(outputPath, format);
+            //v.Dispose();
         }
 
         private void link1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
