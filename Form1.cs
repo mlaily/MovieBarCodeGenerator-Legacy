@@ -106,20 +106,12 @@ namespace MovieBarCode
                         return;
                     }
                 }
-                try
-                {
-                    var fs = new System.IO.FileStream(txtPathOut.Text, System.IO.FileMode.Create);
-                    fs.Dispose();
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Invalid output path!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                this.Enabled = false;
-                GenerateMovieBarCode(txtPathIn.Text, width, height, txtPathOut.Text, iterations, barWidth);
-                this.Enabled = true;
+				progressBar1.Maximum = iterations;
+				SetChildrenReadOnly(true);
+				ParallelGeneration generationObject = new ParallelGeneration(txtPathIn.Text, txtPathOut.Text,width, height,iterations,barWidth);
+				generationObject.GenerationComplete += (o2, e2) => this.Invoke((Action)(() => SetChildrenReadOnly(false)));
+				generationObject.ProgressChanged += (o3, e3) => this.Invoke((Action)(() => progressBar1.Value = (int)(e3.Progression * iterations)));
+				new System.Threading.Thread(() => generationObject.GenerateMovieBarCode()).Start();
             }
             else
             {
@@ -128,118 +120,13 @@ namespace MovieBarCode
             }
         }
 
-        public struct ThreadParameters
-        {
-            public int threadNumber;
-            public int start;
-            public int stop;
-            public int totalIterations;
-            public string vPath;
-            public int barWidth;
-            public int width;
-            public int height;
-        }
-
-        private void GenerationCore(object objectArgs)
-        {
-            ThreadParameters args = (ThreadParameters)objectArgs;
-            Bitmap slice = new Bitmap(args.width, args.height);
-            System.Drawing.Graphics g = Graphics.FromImage(slice);
-            VideoHelper v = new VideoHelper(args.vPath);
-            for (int i = args.start; i < args.stop; i++)
-            {
-                Bitmap frame = v.GetFrameFromVideo(((double)i) / (double)args.totalIterations);
-                g.DrawImage(frame, (i-args.start) * args.barWidth, 0, args.barWidth, args.height);
-                if (i % 10 == 0)
-                {
-                    //once every 10 iteration should not be too much
-                    //but is enough to keep the memory footprint as low as possible
-                    //(almost only cosmetic change)
-                    GC.Collect();
-                }
-                progression++;
-                //progressBar1.PerformStep();
-                //Application.DoEvents();
-            }
-            v.Dispose();
-            ThreadedSlices.Add(args.threadNumber, slice);
-        }
-        /// <summary>
-        /// stock temporary bitmap computed in working threads (must be accessed in a thread safe way),
-        /// each bitmap is associated with its thread number (in the right order)
-        /// </summary>
-        private Dictionary<int, Bitmap> ThreadedSlices = null;
-        /// <summary>
-        /// progression, reported by working threads, in frames
-        /// (total = iterations)
-        /// </summary>
-        private int progression = 0;
-        private void GenerateMovieBarCode(string videoPath, int width, int height, string outputPath, int iterations, int barWidth)
-        {
-            //multithread : on calcul séparement x bitmap qu'on réassemble à la fin
-            progressBar1.Value = progressBar1.Minimum;
-            progressBar1.Maximum = iterations;
-            //VideoHelper v = new VideoHelper(videoPath);
-            Bitmap finalBitmap = new Bitmap(width, height);
-            System.Drawing.Graphics g = Graphics.FromImage(finalBitmap);
-            ThreadedSlices = new Dictionary<int, Bitmap>();
-#if DEBUG
-            DateTime start = DateTime.Now;
-#endif
-            List<System.Threading.Thread> threads = new List<System.Threading.Thread>();
-            for (int i = 0; i < Environment.ProcessorCount; i++)
-            {
-                ThreadParameters args = new ThreadParameters();
-                args.threadNumber = i;
-                args.start = i * (iterations / Environment.ProcessorCount);
-                args.stop = (i + 1) * (iterations / Environment.ProcessorCount);
-                args.totalIterations = iterations;
-                args.vPath = videoPath;
-                args.barWidth = barWidth;
-                args.width = width / Environment.ProcessorCount;//must handle modulo if not a multiple of processorCount
-                args.height = height;
-                System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(GenerationCore));
-                t.Name = string.Format("Core {0}",i+1);
-                threads.Add(t);
-                t.Start(args);
-            }
-            foreach (var item in threads)
-            {
-                item.Join();
-            }
-            foreach (var slice in ThreadedSlices)
-            {
-                g.DrawImage(slice.Value, new Point(slice.Key * (iterations / Environment.ProcessorCount), 0));
-                slice.Value.Save(string.Format(@"C:\{0:000}.jpg",slice.Key));
-            }
-#if DEBUG
-            DateTime end = DateTime.Now;
-            var total = end - start;
-            Console.WriteLine(total);
-#endif
-            System.Drawing.Imaging.ImageFormat format;
-            switch (System.IO.Path.GetExtension(outputPath).Trim(".".ToCharArray()).ToLowerInvariant())
-            {
-                case "bmp":
-                    format = System.Drawing.Imaging.ImageFormat.Bmp;
-                    break;
-                case "jpg":
-                case "jpeg":
-                    format = System.Drawing.Imaging.ImageFormat.Jpeg;
-                    break;
-                case "gif":
-                    format = System.Drawing.Imaging.ImageFormat.Gif;
-                    break;
-                case "png":
-                    format = System.Drawing.Imaging.ImageFormat.Png;
-                    break;
-                default:
-                    format = System.Drawing.Imaging.ImageFormat.Png;
-                    break;
-            }
-            finalBitmap.Save(outputPath, format);
-            //v.Dispose();
-        }
+		private void SetChildrenReadOnly(bool readOnly)
+		{
+			foreach (Control item in this.Controls)
+			{
+				item.Enabled = !readOnly;
+			}
+		}
 
         private void link1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
