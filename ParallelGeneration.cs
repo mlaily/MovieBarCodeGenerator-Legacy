@@ -123,6 +123,7 @@ namespace MovieBarCode
 				for (int i = 0; i < Environment.ProcessorCount; i++)
 				{
 					/*
+					 * example:
 					 * 125 images
 					 * 3 threads:
 					 * 0-41
