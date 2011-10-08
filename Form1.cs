@@ -109,8 +109,28 @@ namespace MovieBarCode
 				progressBar1.Maximum = iterations;
 				SetChildrenReadOnly(true);
 				ParallelGeneration generationObject = new ParallelGeneration(txtPathIn.Text, txtPathOut.Text, width, height, iterations, barWidth);
-				generationObject.GenerationComplete += (o2, e2) => this.Invoke((Action)(() => SetChildrenReadOnly(false)));
-				generationObject.ProgressChanged += (o3, e3) => this.Invoke((Action)(() => progressBar1.Value = (int)(e3.Progression * iterations)));
+				generationObject.GenerationComplete += (o2, e2) =>
+				{
+					try
+					{
+						this.Invoke((Action)(() => SetChildrenReadOnly(false)));
+					}
+					catch (Exception)
+					{
+						//application exited ?
+					}
+				};
+				generationObject.ProgressChanged += (o3, e3) =>
+				{
+					try
+					{
+						this.Invoke((Action)(() => progressBar1.Value = (int)(e3.Progression * iterations)));
+					}
+					catch (Exception)
+					{
+						//application exited ?
+					}
+				};
 				new System.Threading.Thread(() => generationObject.GenerateMovieBarCode()).Start();
 			}
 			else
