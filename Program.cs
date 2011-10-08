@@ -138,6 +138,11 @@ Melvyn Laily. 2011.";
 						{
 							throw new Exception("Input file must exists.");
 						}
+						//if (System.IO.Path.GetExtension(inputPath).ToLowerInvariant() != ".avi" && System.IO.Path.GetExtension(inputPath) != ".wmv")
+						//{
+						//    Console.WriteLine("Avi or Wmv file expected!");
+						//    return;
+						//}
 					}
 					catch (Exception ex)
 					{
@@ -148,7 +153,7 @@ Melvyn Laily. 2011.";
 					{
 						if (parsingResult.ContainsKey(output))
 						{
-							outputPath = parsingResult[input];
+							outputPath = parsingResult[output];
 							//test if path is valid
 							System.IO.File.Create(outputPath);
 							if (!System.IO.File.Exists(outputPath))

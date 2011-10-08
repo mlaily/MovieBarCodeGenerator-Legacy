@@ -90,12 +90,26 @@ namespace MovieBarCode
 				{
 					throw new NullReferenceException("Argument can't be null");
 				}
-				sb.Append("- ");
-				var concatenatedNames = arg.Names.Concat(from a in arg.ShortNames select a.ToString()).ToList();
-				for (int i = 0; i < concatenatedNames.Count; i++)
+				for (int i = 0; i < arg.Names.Length; i++)
 				{
-					sb.Append(concatenatedNames[i]);
-					if (i == concatenatedNames.Count - 1)
+					sb.Append("--");
+					sb.Append(arg.Names[i]);
+					if (i == arg.Names.Length - 1)
+					{
+						//last
+						if (arg.ShortNames.Length == 0)
+						{
+							//and no shortNames
+							continue;
+						}
+					}
+					sb.Append(", ");
+				}
+				for (int i = 0; i < arg.ShortNames.Length; i++)
+				{
+					sb.Append("-");
+					sb.Append(arg.ShortNames[i]);
+					if (i == arg.ShortNames.Length - 1)
 					{
 						//last
 						continue;
