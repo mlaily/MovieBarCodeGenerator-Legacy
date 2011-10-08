@@ -138,11 +138,10 @@ Melvyn Laily. 2011.";
 						{
 							throw new Exception("Input file must exists.");
 						}
-						//if (System.IO.Path.GetExtension(inputPath).ToLowerInvariant() != ".avi" && System.IO.Path.GetExtension(inputPath) != ".wmv")
-						//{
-						//    Console.WriteLine("Avi or Wmv file expected!");
-						//    return;
-						//}
+						if (System.IO.Path.GetExtension(inputPath).ToLowerInvariant() != ".avi" && System.IO.Path.GetExtension(inputPath) != ".wmv")
+						{
+							Console.WriteLine("Warning! Avi or Wmv file expected!");
+						}
 					}
 					catch (Exception ex)
 					{
