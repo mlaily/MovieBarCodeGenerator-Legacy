@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MovieBarCode
 {
@@ -15,6 +16,21 @@ namespace MovieBarCode
 
 		public List<Argument> Arguments { get; set; }
 
+		/// <summary>
+		/// if false, all args are parsed with case insensitive option.
+		/// default to true.
+		/// </summary>
+		public bool CaseSensitiveArgs { get; set; }
+
+		/// <summary>
+		/// used when displaying the full help.
+		/// </summary>
+		public string ProgramDescription { get; set; }
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="commandLine">if null, commandLine is grabbed from Environment.CommandLine</param>
 		public CLI(string commandLine = null)
 		{
 			if (commandLine == null)
@@ -25,6 +41,7 @@ namespace MovieBarCode
 			{
 				this.CommandLine = commandLine;
 			}
+			this.CaseSensitiveArgs = true;
 		}
 
 		/// <summary>
@@ -44,7 +61,7 @@ namespace MovieBarCode
 				{
 					throw new NullReferenceException("Argument can't be null");
 				}
-				System.Text.RegularExpressions.Match m = item.TokenParsing.Match(this.CommandLine);
+				Match m = item.GetTokenParsing(this.CaseSensitiveArgs).Match(this.CommandLine);
 				if (m.Success)
 				{
 					if (item.ValueExpected)
@@ -58,6 +75,48 @@ namespace MovieBarCode
 				}
 			}
 			return final;
+		}
+
+		/// <summary>
+		/// generate help page using arguments descriptions.
+		/// </summary>
+		/// <returns></returns>
+		public string GetArgumentsHelp()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var arg in this.Arguments)
+			{
+				if (arg == null)
+				{
+					throw new NullReferenceException("Argument can't be null");
+				}
+				sb.Append("- ");
+				var concatenatedNames = arg.Names.Concat(from a in arg.ShortNames select a.ToString()).ToList();
+				for (int i = 0; i < concatenatedNames.Count; i++)
+				{
+					sb.Append(concatenatedNames[i]);
+					if (i == concatenatedNames.Count - 1)
+					{
+						//last
+						continue;
+					}
+					sb.Append(", ");
+				}
+				sb.AppendLine();
+				sb.Append("\t");
+				sb.AppendLine(arg.Description);
+				sb.AppendLine();
+			}
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// return a default help page, including program description and arguments usage.
+		/// </summary>
+		/// <returns></returns>
+		public string GetFullHelpPage()
+		{
+			return this.ProgramDescription + Environment.NewLine + "--------------------" + Environment.NewLine + Environment.NewLine + "Usage:" + Environment.NewLine + Environment.NewLine + GetArgumentsHelp();
 		}
 
 		/// <summary>
@@ -78,29 +137,54 @@ namespace MovieBarCode
 			/// </summary>
 			public char[] ShortNames { get; set; }
 
+			/// <summary>
+			/// default to true.
+			/// </summary>
 			public bool ValueExpected { get; set; }
+
+			public string Description { get; set; }
+
+			/// <summary>
+			/// used to validate parsed value.
+			/// must return true if valid.
+			/// considered false if any exception is thrown.
+			/// 
+			/// Validation will be ignored if null.
+			/// </summary>
+			/// may be used to throw error sooner.
+			/// not used yet.
+			//public Func<object, bool> ValueValidation { get; set; }
 
 			/// <summary>
 			/// match the argument name.
 			/// {0}: name,
 			/// {1}: shortName
 			/// </summary>
-			private const string TOKEN_PARSING_PATTERN = @"(\s|^)((-{{1,2}}|/){0}|(-|/){1})(\s+|$)";
+			/// <remarks>
+			/// '/' is not recommanded, because if 2 different args with the same name and shortname exist, difference can't be made.
+			/// </remarks>
+			private const string TOKEN_PARSING_PATTERN = @"(\s|^)((--|/){0}|(-|/){1})(\s+|$)";
+			/// <summary>
+			/// parse values. spaces are allowed in quote.
+			/// </summary>
 			private const string END_PARSING_PATTERN_VALUE_EXPECTED = @"((?<value>[^""\s]+)|""(?<value>[^""]*)"")";
-
-			public System.Text.RegularExpressions.Regex TokenParsing
-			{
-				get
-				{
-					return new System.Text.RegularExpressions.Regex(string.Format(TOKEN_PARSING_PATTERN, GetPatternForArray(Names), GetPatternForArray(ShortNames)) + (ValueExpected ? END_PARSING_PATTERN_VALUE_EXPECTED : string.Empty));
-				}
-			}
 
 			public Argument()
 			{
 				ValueExpected = true;
 			}
 
+			public Regex GetTokenParsing(bool caseSensitive = true)
+			{
+				return new Regex(string.Format(TOKEN_PARSING_PATTERN, GetPatternForArray(Names), GetPatternForArray(ShortNames)) + (ValueExpected ? END_PARSING_PATTERN_VALUE_EXPECTED : string.Empty), caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
+			}
+
+			/// <summary>
+			/// return a regex alternation pattern with the values of the provided array.
+			/// </summary>
+			/// <typeparam name="T"></typeparam>
+			/// <param name="array"></param>
+			/// <returns></returns>
 			private string GetPatternForArray<T>(IList<T> array)
 			{
 				if (array == null)
@@ -119,7 +203,7 @@ namespace MovieBarCode
 				sb.Append("(");
 				for (int i = 0; i < array.Count; i++)
 				{
-					sb.Append(System.Text.RegularExpressions.Regex.Escape((array[i].ToString())));
+					sb.Append(Regex.Escape((array[i].ToString())));
 					if (i == array.Count - 1)
 					{
 						//last
