@@ -115,22 +115,71 @@ Melvyn Laily. 2011.";
 					return;
 				}
 
+				int widthValue;
+				int heightValue;
+				int iterationsValue;
+				int barWidthValue;
+				#region "Parsing and validation"
+				try
+				{
+					widthValue = int.Parse(parsingResult[width]);
+				}
+				catch (Exception ex)
+				{
+					//Console.WriteLine(ex.ToString());
+					widthValue = 1000;
+					Console.WriteLine("Default value for width: " + widthValue);
+				}
+
+				try
+				{
+					heightValue = int.Parse(parsingResult[height]);
+				}
+				catch (Exception ex)
+				{
+					//Console.WriteLine(ex.ToString());
+					heightValue = 500;
+					Console.WriteLine("Default value for height: " + heightValue);
+				}
+
+				try
+				{
+					iterationsValue = int.Parse(parsingResult[iterations]);
+				}
+				catch (Exception ex)
+				{
+					//Console.WriteLine(ex.ToString());
+					iterationsValue = 1000;
+					Console.WriteLine("Default value for iterations: " + iterationsValue);
+				}
+
+				try
+				{
+					barWidthValue = int.Parse(parsingResult[barWidth]);
+				}
+				catch (Exception ex)
+				{
+					//Console.WriteLine(ex.ToString());
+					barWidthValue = 1;
+					Console.WriteLine("Default value for barWidth: " + barWidthValue);
+				}
+				#endregion
+
 				if (parsingResult.ContainsKey(directories))
 				{
 					//batch
+					string inputPath;
+					string outputPath;
 
+					
 				}
 				else
 				{
 					//simple
 					string inputPath;
 					string outputPath;
-					int widthValue;
-					int heightValue;
-					int iterationsValue;
-					int barWidthValue;
 
-					#region "Parsing and validation"
+					#region "Parsing and validation - Simple"
 					try
 					{
 						inputPath = parsingResult[input];
@@ -179,50 +228,6 @@ Melvyn Laily. 2011.";
 					{
 						Console.WriteLine(ex.ToString());
 						return;
-					}
-
-					try
-					{
-						widthValue = int.Parse(parsingResult[width]);
-					}
-					catch (Exception ex)
-					{
-						//Console.WriteLine(ex.ToString());
-						widthValue = 1000;
-						Console.WriteLine("Default value for width: " + widthValue);
-					}
-
-					try
-					{
-						heightValue = int.Parse(parsingResult[height]);
-					}
-					catch (Exception ex)
-					{
-						//Console.WriteLine(ex.ToString());
-						heightValue = 500;
-						Console.WriteLine("Default value for height: " + heightValue);
-					}
-
-					try
-					{
-						iterationsValue = int.Parse(parsingResult[iterations]);
-					}
-					catch (Exception ex)
-					{
-						//Console.WriteLine(ex.ToString());
-						iterationsValue = 1000;
-						Console.WriteLine("Default value for iterations: " + iterationsValue);
-					}
-
-					try
-					{
-						barWidthValue = int.Parse(parsingResult[barWidth]);
-					}
-					catch (Exception ex)
-					{
-						//Console.WriteLine(ex.ToString());
-						barWidthValue = 1;
-						Console.WriteLine("Default value for barWidth: " + barWidthValue);
 					}
 					#endregion
 
