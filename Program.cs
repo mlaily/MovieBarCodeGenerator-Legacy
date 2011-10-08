@@ -98,7 +98,7 @@ Generate MovieBarCode (concatenated movie frames, in one image).
 You can provide one input file, or a full directory (-d),
 along with an output file or directory.
 
-Version: " + Application.ProductVersion + 
+Version: " + Application.ProductVersion +
 @"
 Melvyn Laily. 2011.";
 
@@ -154,18 +154,26 @@ Melvyn Laily. 2011.";
 						if (parsingResult.ContainsKey(output))
 						{
 							outputPath = parsingResult[output];
-							//test if path is valid
-							System.IO.File.Create(outputPath);
-							if (!System.IO.File.Exists(outputPath))
+							if (System.IO.File.Exists(outputPath))
 							{
-								throw new Exception("Invalid output path specified.");
+								Console.WriteLine("Output file already exists: \"{0}\", will be overwritten.", outputPath);
+							}
+							//test if path is valid
+							try
+							{
+								System.IO.FileStream fs = new System.IO.FileStream(outputPath, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.Write);
+								fs.Dispose();
+							}
+							catch (Exception ex)
+							{
+								throw new Exception("Invalid output path specified.", ex);
 							}
 						}
 						else
 						{
 							//default
 							outputPath = System.IO.Path.GetFileNameWithoutExtension(inputPath) + ".png";
-							Console.WriteLine("Default value for outputPath: \"" + outputPath  + "\"");
+							Console.WriteLine("Default value for outputPath: \"" + outputPath + "\"");
 						}
 					}
 					catch (Exception ex)
@@ -224,7 +232,7 @@ Melvyn Laily. 2011.";
 					generationObject.ProgressChanged += (o3, e3) => WriteCLIPercentage(e3.Percentage);
 					new System.Threading.Thread(() => generationObject.GenerateMovieBarCode()).Start();
 				}
-				
+
 			}
 		}
 
