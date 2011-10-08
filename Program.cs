@@ -45,8 +45,9 @@ namespace MovieBarCode
 				{
 					Names = new string[] { "output", "out" },
 					Description = "Output file or directory, depending on the directories argument.\n" +
-					"If not set, default name or current directory is used." +
-					"If file exists, it will be overwritten without warning.",
+					"If not set, default name or current directory is used.\n" +
+					"If file exists, it will be overwritten without warning." +
+					"If directory does NOT exist, it will be created.",
 					ShortNames = new char[] { 'o' }
 				};
 				var directories = new CLI.Argument()
@@ -170,8 +171,71 @@ Melvyn Laily. 2011.";
 					//batch
 					string inputPath;
 					string outputPath;
+					bool recursiveValue;
 
-					
+					#region "Parsing and validation - Batch"
+					try
+					{
+						inputPath = parsingResult[input];
+						if (!System.IO.Directory.Exists(inputPath))
+						{
+							throw new Exception("Input directory must exists.");
+						}
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex.ToString());
+						return;
+					}
+					try
+					{
+						if (parsingResult.ContainsKey(output))
+						{
+							outputPath = parsingResult[output];
+						}
+						else
+						{
+							//default
+							outputPath = System.IO.Path.GetFileNameWithoutExtension(inputPath) + "\\";
+							Console.WriteLine("Default value for outputPath: \"" + outputPath + "\"");
+						}
+						//creation
+						System.IO.Directory.CreateDirectory(outputPath);
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex.ToString());
+						return;
+					}
+					try
+					{
+						recursiveValue = bool.Parse(parsingResult[recursive]);
+					}
+					catch (Exception ex)
+					{
+						//Console.WriteLine(ex.ToString());
+						recursiveValue = false;
+						Console.WriteLine("Default value for recursive: " + recursiveValue);
+					}
+					#endregion
+
+					foreach (string file in System.IO.Directory.EnumerateFiles(inputPath, "*", recursiveValue ? System.IO.SearchOption.AllDirectories : System.IO.SearchOption.TopDirectoryOnly))
+					{
+						if (System.IO.Path.GetExtension(file).ToLowerInvariant() != ".avi" && System.IO.Path.GetExtension(file).ToLowerInvariant() != ".wmv")
+						{
+							continue;
+						}
+						string thisFileOutput = System.IO.Path.Combine(outputPath, System.IO.Path.GetFileNameWithoutExtension(file) + ".png");
+						Console.WriteLine("Starting generation for file \"{0}\"...", file);
+						ParallelGeneration generationObject = new ParallelGeneration(file, thisFileOutput, widthValue, heightValue, iterationsValue, barWidthValue);
+						generationObject.GenerationComplete += (o2, e2) => Console.WriteLine();
+						generationObject.ProgressChanged += (o3, e3) => WriteCLIPercentage(e3.Percentage);
+						System.Threading.Thread t = new System.Threading.Thread(() => generationObject.GenerateMovieBarCode());
+						t.Start();
+						t.Join();
+						Console.WriteLine("Movie Barcode generation complete!");
+					}
+					Console.WriteLine("Exiting...");
 				}
 				else
 				{
@@ -231,10 +295,13 @@ Melvyn Laily. 2011.";
 					}
 					#endregion
 
+					Console.WriteLine("Starting generation...");
 					ParallelGeneration generationObject = new ParallelGeneration(inputPath, outputPath, widthValue, heightValue, iterationsValue, barWidthValue);
 					generationObject.GenerationComplete += (o2, e2) => Console.WriteLine();
 					generationObject.ProgressChanged += (o3, e3) => WriteCLIPercentage(e3.Percentage);
 					new System.Threading.Thread(() => generationObject.GenerateMovieBarCode()).Start();
+					Console.WriteLine("Movie Barcode generation complete!");
+					Console.WriteLine("Exiting...");
 				}
 
 			}
