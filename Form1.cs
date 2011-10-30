@@ -98,13 +98,26 @@ namespace MovieBarCode
 					MessageBox.Show("Bar-width value not valid!");
 					return;
 				}
-
+				txtPathOut.Text.TrimEnd(".".ToCharArray());
+				if (txtPathOut.Text.Length <= 0)
+				{
+					txtPathOut.Text = System.IO.Path.GetFileNameWithoutExtension(ofd1.FileName) + ".png";
+				}
+				if (System.IO.Path.GetExtension(txtPathOut.Text).Length <= 0)
+				{
+					txtPathOut.Text += ".png";
+				}
 				if (System.IO.File.Exists(txtPathOut.Text))
 				{
 					if (MessageBox.Show(string.Format(@"The file '{0}' already exists. are you sure you want to overwrite it?", txtPathOut.Text), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != System.Windows.Forms.DialogResult.Yes)
 					{
 						return;
 					}
+				}
+				if (txtPathOut.Text == null || txtPathOut.Text.Length <= 0 || txtPathOut.Text.Any(c => System.IO.Path.GetInvalidFileNameChars().Contains(c)))
+				{
+					MessageBox.Show("Output path value not valid!");
+					return;
 				}
 				progressBar1.Maximum = iterations;
 				SetChildrenReadOnly(true);
