@@ -299,7 +299,9 @@ Melvyn Laily. 2011.";
 					ParallelGeneration generationObject = new ParallelGeneration(inputPath, outputPath, widthValue, heightValue, iterationsValue, barWidthValue);
 					generationObject.GenerationComplete += (o2, e2) => Console.WriteLine();
 					generationObject.ProgressChanged += (o3, e3) => WriteCLIPercentage(e3.Percentage);
-					new System.Threading.Thread(() => generationObject.GenerateMovieBarCode()).Start();
+					var t = new System.Threading.Thread(() => generationObject.GenerateMovieBarCode());
+					t.Start();
+					t.Join();
 					Console.WriteLine("Movie Barcode generation complete!");
 					Console.WriteLine("Exiting...");
 				}
