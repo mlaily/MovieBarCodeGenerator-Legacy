@@ -101,7 +101,7 @@ along with an output file or directory.
 
 Version: " + Application.ProductVersion +
 @"
-Melvyn Laily. 2011.";
+Melvyn Laily. 2011-2012.";
 
 				cli.Arguments = new List<CLI.Argument>() 
 				{

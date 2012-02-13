@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
 			this.txtPathIn = new System.Windows.Forms.TextBox();
 			this.btnBrowseIn = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
@@ -200,7 +201,7 @@
 			this.txtIterations.Size = new System.Drawing.Size(55, 20);
 			this.txtIterations.TabIndex = 15;
 			this.txtIterations.Text = "1000";
-			this.txtIterations.TextChanged += new System.EventHandler(this.txtIterations_TextChanged);
+			this.txtIterations.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIterations_KeyUp);
 			// 
 			// label6
 			// 
@@ -218,7 +219,7 @@
 			this.txtBarWidth.Size = new System.Drawing.Size(55, 20);
 			this.txtBarWidth.TabIndex = 17;
 			this.txtBarWidth.Text = "1";
-			this.txtBarWidth.TextChanged += new System.EventHandler(this.txtBarWidth_TextChanged);
+			this.txtBarWidth.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtBarWidth_KeyUp);
 			// 
 			// chkAutoCorrect
 			// 
@@ -256,6 +257,7 @@
 			this.Controls.Add(this.btnBrowseIn);
 			this.Controls.Add(this.txtPathIn);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(416, 249);
 			this.Name = "Form1";

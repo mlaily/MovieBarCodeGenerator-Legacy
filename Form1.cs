@@ -168,7 +168,7 @@ namespace MovieBarCode
 					() => System.Diagnostics.Process.Start(@"http://arcanesanctum.net"))).Start();
 		}
 
-		private void txtIterations_TextChanged(object sender, EventArgs e)
+		private void txtIterations_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (!chkAutoCorrect.Checked)
 			{
@@ -195,7 +195,7 @@ namespace MovieBarCode
 			}
 			try
 			{
-				int barWidth = width / iterations;
+				int barWidth = (int)Math.Round((double)width / (double)iterations);
 				txtBarWidth.Text = barWidth.ToString();
 			}
 			catch (Exception)
@@ -203,7 +203,7 @@ namespace MovieBarCode
 			}
 		}
 
-		private void txtBarWidth_TextChanged(object sender, EventArgs e)
+		private void txtBarWidth_KeyUp(object sender, KeyEventArgs e)
 		{
 			if (!chkAutoCorrect.Checked)
 			{
@@ -231,7 +231,7 @@ namespace MovieBarCode
 
 			try
 			{
-				int iterations = width / barWidth;
+				int iterations = (int)Math.Round((double)width / (double)barWidth);
 				txtIterations.Text = iterations.ToString();
 			}
 			catch (Exception)

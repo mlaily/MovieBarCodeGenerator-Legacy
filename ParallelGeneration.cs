@@ -70,7 +70,7 @@ namespace MovieBarCode
 			{
 				throw new ArgumentNullException();
 			}
-			int sliceWidth = this.Width / Environment.ProcessorCount;
+			int sliceWidth = (args.EndPoint - args.StartPoint) * this.BarWidth;
 			Bitmap slice = new Bitmap(sliceWidth, this.Height);
 			System.Drawing.Graphics g = Graphics.FromImage(slice);
 			VideoHelper v = new VideoHelper(this.InputPath);
@@ -119,8 +119,14 @@ namespace MovieBarCode
 				DateTime start = DateTime.Now;
 #endif
 				List<System.Threading.Thread> threads = new List<System.Threading.Thread>();
+				int maxThreads = Environment.ProcessorCount;
+				if (this.TotalIterations < maxThreads)
+				{
+					maxThreads = this.TotalIterations;
+				}
+				int remaining = this.TotalIterations % maxThreads;
 				//distribute work load
-				for (int i = 0; i < Environment.ProcessorCount; i++)
+				for (int i = 0; i < maxThreads; i++)
 				{
 					/*
 					 * example:
@@ -134,26 +140,25 @@ namespace MovieBarCode
 					ThreadParameters args = new ThreadParameters()
 					{
 						ThreadId = i,
-						StartPoint = i * (this.TotalIterations / Environment.ProcessorCount),
-						EndPoint = (i + 1) * (this.TotalIterations / Environment.ProcessorCount),
+						StartPoint = i * (this.TotalIterations / maxThreads),
+						EndPoint = (i + 1) * (this.TotalIterations / maxThreads),
 					};
 					System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Core));
 					t.Name = string.Format("Core {0}", i + 1);
 					threads.Add(t);
 					t.Start(args);
 				}
-				int remaining = this.TotalIterations % Environment.ProcessorCount;
 				if (remaining > 0)
 				{
 					//start a last thread for the remaining frames
 					ThreadParameters args = new ThreadParameters()
 					{
-						ThreadId = Environment.ProcessorCount,
-						StartPoint = Environment.ProcessorCount * (this.TotalIterations / Environment.ProcessorCount),
-						EndPoint = Environment.ProcessorCount * (this.TotalIterations / Environment.ProcessorCount) + remaining,
+						ThreadId = maxThreads,
+						StartPoint = maxThreads * (this.TotalIterations / maxThreads),
+						EndPoint = maxThreads * (this.TotalIterations / maxThreads) + remaining,
 					};
 					System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Core));
-					t.Name = string.Format("Core {0}", Environment.ProcessorCount + 1);
+					t.Name = string.Format("Core {0}", maxThreads + 1);
 					threads.Add(t);
 					t.Start(args);
 				}
@@ -163,17 +168,10 @@ namespace MovieBarCode
 					item.Join();
 				}
 				System.Drawing.Graphics g = Graphics.FromImage(finalBitmap);
+				int standardSliceWidth = ThreadedSlices.First(o => o.Key == 0).Value.Width;
 				foreach (var slice in ThreadedSlices)
 				{
-					if (slice.Key == Environment.ProcessorCount)
-					{
-						//remaining
-						g.DrawImage(slice.Value, new Point(Environment.ProcessorCount * (this.TotalIterations / Environment.ProcessorCount) + remaining, 0));
-					}
-					else
-					{
-						g.DrawImage(slice.Value, new Point(slice.Key * (this.TotalIterations / Environment.ProcessorCount), 0));
-					}
+					g.DrawImage(slice.Value, new Point(slice.Key * standardSliceWidth, 0));
 #if DEBUG
 					slice.Value.Save(string.Format(@"C:\{0:000}.jpg", slice.Key));
 #endif
