@@ -114,7 +114,7 @@ namespace MovieBarCode
 						return;
 					}
 				}
-				if (txtPathOut.Text == null || txtPathOut.Text.Length <= 0 || txtPathOut.Text.Any(c => System.IO.Path.GetInvalidFileNameChars().Contains(c)))
+				if (txtPathOut.Text == null || txtPathOut.Text.Length <= 0 || txtPathOut.Text.Any(c => System.IO.Path.GetInvalidPathChars().Contains(c)))
 				{
 					MessageBox.Show("Output path value not valid!");
 					return;
