@@ -1,4 +1,8 @@
-﻿using System;
+﻿//Code adapted from http://www.codeproject.com/Articles/13237/Extract-Frames-from-Video-Files
+//The copyright holder seems to be "JockerSoft"
+//Seems to be licensed under the CPOL license: http://www.codeproject.com/info/cpol10.aspx
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
